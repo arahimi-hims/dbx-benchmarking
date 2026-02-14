@@ -6,14 +6,17 @@ import databricks.sdk as dbx_sdk
 
 import configuration
 
-with configuration.benchmark_sql(
-    configuration.result_path(__file__),
+connection = configuration.get_sql_connection(
     f"/sql/protocolv1/o/{dbx_sdk.WorkspaceClient().get_workspace_id()}/"
     + os.environ["DATABRICKS_CLUSTER_ID"],
-) as connection:
-    with connection.cursor() as cursor:
-        cursor.execute(
-            f"CREATE OR REPLACE TABLE "
-            f"{configuration.CATALOG}.default.swolness_cluster_sql_new AS "
-            + configuration.QUERY
-        )
+)
+try:
+    with configuration.benchmark(configuration.result_path(__file__)):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"CREATE OR REPLACE TABLE "
+                f"{configuration.CATALOG}.default.swolness_cluster_sql_new AS "
+                + configuration.QUERY
+            )
+finally:
+    connection.close()

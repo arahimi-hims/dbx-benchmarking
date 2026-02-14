@@ -4,9 +4,9 @@ import os
 
 import configuration
 
-with configuration.benchmark_spark(
-    configuration.result_path(__file__),
-) as spark:
+spark = configuration.get_spark()
+
+with configuration.benchmark(configuration.result_path(__file__)):
     df = spark.sql(configuration.QUERY)
     df.cache()
     # Databricks Connect on DBR 18.0.x can't resolve short format names

@@ -36,8 +36,17 @@ CATALOG = f"us_mle_{os.environ['USER']}_gold"
 
 
 def _check_warehouse_health(warehouse_id: str) -> None:
+    ws = databricks.sdk.WorkspaceClient()
     while True:
-        warehouse = databricks.sdk.WorkspaceClient().warehouses.get(warehouse_id)
+        warehouse = ws.warehouses.get(warehouse_id)
+        if warehouse.state.value == "STOPPED":
+            print(
+                f"Warehouse {warehouse.name!r} ({warehouse.id}) "
+                f"is STOPPED — starting it …"
+            )
+            ws.warehouses.start(warehouse_id)
+            time.sleep(20)
+            continue
         if warehouse.state.value != "RUNNING":
             print(
                 f"Warehouse {warehouse.name!r} ({warehouse.id}) "
@@ -58,8 +67,17 @@ def _check_warehouse_health(warehouse_id: str) -> None:
 
 
 def _check_cluster_health(cluster_id: str) -> None:
+    client = databricks.sdk.WorkspaceClient()
     while True:
-        cluster = databricks.sdk.WorkspaceClient().clusters.get(cluster_id)
+        cluster = client.clusters.get(cluster_id)
+        if cluster.state.value == "TERMINATED":
+            print(
+                f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
+                f"is TERMINATED — starting it …"
+            )
+            client.clusters.start(cluster_id)
+            time.sleep(20)
+            continue
         if cluster.state.value != "RUNNING":
             print(
                 f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
@@ -119,41 +137,40 @@ def benchmark(
         raise
 
 
-@contextlib.contextmanager
-def benchmark_sql(
-    result_file: Path,
-    http_path: str,
-) -> Iterator[databricks.sql.client.Connection]:
-    """Benchmarks a block that uses a SQL connection.
+def get_sql_connection(http_path: str) -> databricks.sql.client.Connection:
+    """Returns a SQL connection after verifying the target resource is healthy.
 
-    Creates a connection, yields it, and closes it on exit.  Timing and
-    crash reporting are handled by the base ``benchmark`` context manager.
-    """
-    _check_sql_resource_health(http_path)
-    with benchmark(result_file):
-        connection = databricks.sql.connect(
-            server_hostname=os.environ["DATABRICKS_HOST"]
-            .replace("https://", "")
-            .rstrip("/"),
-            http_path=http_path,
-            access_token=os.environ["DATABRICKS_TOKEN"],
-            catalog=CATALOG,
-        )
+    The caller is responsible for closing the connection when done.
+    Typically used *before* a ``benchmark`` context manager so that
+    connection startup time is not included in the benchmark::
+
+        connection = get_sql_connection(http_path)
         try:
-            yield connection
+            with benchmark(result_file):
+                ...
         finally:
             connection.close()
+    """
+    _check_sql_resource_health(http_path)
+    return databricks.sql.connect(
+        server_hostname=os.environ["DATABRICKS_HOST"]
+        .replace("https://", "")
+        .rstrip("/"),
+        http_path=http_path,
+        access_token=os.environ["DATABRICKS_TOKEN"],
+        catalog=CATALOG,
+    )
 
 
-@contextlib.contextmanager
-def benchmark_spark(
-    result_file: Path,
-) -> Iterator[databricks.connect.DatabricksSession]:
-    """Benchmarks a block that uses a Spark session.
+def get_spark() -> databricks.connect.DatabricksSession:
+    """Returns a Spark session after verifying the cluster is healthy.
 
-    Creates a session, yields it, and closes it on exit.  Timing and
-    crash reporting are handled by the base ``benchmark`` context manager.
+    Typically used *before* a ``benchmark`` context manager so that
+    session startup time is not included in the benchmark::
+
+        spark = get_spark()
+        with benchmark(result_file):
+            ...
     """
     _check_cluster_health(os.environ["DATABRICKS_CLUSTER_ID"])
-    with benchmark(result_file):
-        yield databricks.connect.DatabricksSession.builder.getOrCreate()
+    return databricks.connect.DatabricksSession.builder.getOrCreate()
