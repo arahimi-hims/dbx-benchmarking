@@ -1,4 +1,5 @@
 import contextlib
+import logging
 import os
 import time
 import traceback
@@ -12,6 +13,7 @@ import databricks.sql.client
 import dotenv
 
 dotenv.load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 QUERY = """\
 SELECT
@@ -37,10 +39,13 @@ CATALOG = f"us_mle_{os.environ['USER']}_gold"
 
 def _check_warehouse_health(warehouse_id: str) -> None:
     ws = databricks.sdk.WorkspaceClient()
+
+    # Ensure the warehouse is running. If it's stopped, start it. Otherwise,
+    # keep waiting.
     while True:
         warehouse = ws.warehouses.get(warehouse_id)
         if warehouse.state.value == "STOPPED":
-            print(
+            logging.info(
                 f"Warehouse {warehouse.name!r} ({warehouse.id}) "
                 f"is STOPPED — starting it …"
             )
@@ -48,30 +53,35 @@ def _check_warehouse_health(warehouse_id: str) -> None:
             time.sleep(20)
             continue
         if warehouse.state.value != "RUNNING":
-            print(
+            logging.info(
                 f"Warehouse {warehouse.name!r} ({warehouse.id}) "
                 f"is {warehouse.state.value}, not RUNNING — retrying in 20 s …"
             )
             time.sleep(20)
             continue
         if warehouse.health and warehouse.health.status.value != "HEALTHY":
-            print(
+            logging.info(
                 f"Warehouse {warehouse.name!r} ({warehouse.id}) "
                 f"health is {warehouse.health.status.value}, not HEALTHY"
                 f" — retrying in 20 s …"
             )
             time.sleep(20)
             continue
-        print(f"Health check: warehouse {warehouse.name!r} is RUNNING and HEALTHY")
+        logging.info(
+            f"Health check: warehouse {warehouse.name!r} is RUNNING and HEALTHY"
+        )
         break
 
 
 def _check_cluster_health(cluster_id: str) -> None:
     client = databricks.sdk.WorkspaceClient()
+
+    # Ensure the cluster is running. If it's terminated, start it. Otherwise,
+    # keep waiting.
     while True:
         cluster = client.clusters.get(cluster_id)
         if cluster.state.value == "TERMINATED":
-            print(
+            logging.info(
                 f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
                 f"is TERMINATED — starting it …"
             )
@@ -79,20 +89,22 @@ def _check_cluster_health(cluster_id: str) -> None:
             time.sleep(20)
             continue
         if cluster.state.value != "RUNNING":
-            print(
+            logging.info(
                 f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
                 f"is {cluster.state.value}, not RUNNING — retrying in 20 s …"
             )
             time.sleep(20)
             continue
         if not cluster.driver:
-            print(
+            logging.info(
                 f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
                 f"is RUNNING but has no driver node — retrying in 20 s …"
             )
             time.sleep(20)
             continue
-        print(f"Health check: cluster {cluster.cluster_name!r} is RUNNING, driver present")
+        logging.info(
+            f"Health check: cluster {cluster.cluster_name!r} is RUNNING, driver present"
+        )
         break
 
 
@@ -125,14 +137,14 @@ def benchmark(
     try:
         yield
         msg = f"OK  {time.perf_counter() - start:.1f}s"
-        print(msg)
+        logging.info(msg)
         result_file.write_text(msg + "\n")
     except Exception:
         msg = (
             f"CRASH after {time.perf_counter() - start:.1f}s"
             f"\n\n{traceback.format_exc()}"
         )
-        print(msg)
+        logging.info(msg)
         result_file.write_text(msg)
         raise
 
@@ -141,15 +153,6 @@ def get_sql_connection(http_path: str) -> databricks.sql.client.Connection:
     """Returns a SQL connection after verifying the target resource is healthy.
 
     The caller is responsible for closing the connection when done.
-    Typically used *before* a ``benchmark`` context manager so that
-    connection startup time is not included in the benchmark::
-
-        connection = get_sql_connection(http_path)
-        try:
-            with benchmark(result_file):
-                ...
-        finally:
-            connection.close()
     """
     _check_sql_resource_health(http_path)
     return databricks.sql.connect(
@@ -163,14 +166,6 @@ def get_sql_connection(http_path: str) -> databricks.sql.client.Connection:
 
 
 def get_spark() -> databricks.connect.DatabricksSession:
-    """Returns a Spark session after verifying the cluster is healthy.
-
-    Typically used *before* a ``benchmark`` context manager so that
-    session startup time is not included in the benchmark::
-
-        spark = get_spark()
-        with benchmark(result_file):
-            ...
-    """
+    "Returns a Spark session after verifying the cluster is healthy."
     _check_cluster_health(os.environ["DATABRICKS_CLUSTER_ID"])
     return databricks.connect.DatabricksSession.builder.getOrCreate()
