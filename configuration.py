@@ -11,7 +11,7 @@ import databricks.sql
 import databricks.sql.client
 import dotenv
 
-dotenv.load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=True)
+dotenv.load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 
 QUERY = """\
 SELECT
@@ -87,6 +87,11 @@ def _check_sql_resource_health(http_path: str) -> None:
         _check_warehouse_health(resource_id)
     else:
         _check_cluster_health(resource_id)
+
+
+def result_path(script: str) -> Path:
+    """Return the ``.result.txt`` path for a benchmark script."""
+    return Path(script).resolve().with_suffix(".result.txt")
 
 
 @contextlib.contextmanager

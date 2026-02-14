@@ -1,16 +1,14 @@
 """Ads Looker Warehouse + SQL Connector: download to laptop."""
 
-from pathlib import Path
-
 import pyarrow.parquet as pq
 
 import configuration
 
-LOCAL_DATA_DIR = Path(__file__).resolve().parent / "data"
+LOCAL_DATA_DIR = configuration.result_path(__file__).parent / "data"
 LOCAL_DATA_DIR.mkdir(exist_ok=True)
 
 with configuration.benchmark_sql(
-    Path(__file__).resolve().with_suffix(".result.txt"),
+    configuration.result_path(__file__),
     f"/sql/1.0/warehouses/{configuration.WAREHOUSE_ID}",
 ) as connection:
     with connection.cursor() as cursor:

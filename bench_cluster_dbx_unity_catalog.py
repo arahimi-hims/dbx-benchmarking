@@ -1,11 +1,9 @@
 """Ali Rahimi Cluster + Databricks Connector: materialize as Unity Catalog table."""
 
-from pathlib import Path
-
 import configuration
 
 with configuration.benchmark_spark(
-    Path(__file__).resolve().with_suffix(".result.txt"),
+    configuration.result_path(__file__),
 ) as spark:
     spark.sql(
         f"CREATE OR REPLACE TABLE "
