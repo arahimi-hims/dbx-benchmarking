@@ -31,40 +31,51 @@ WHERE
   AND e.event_time >= '2025-01-01'
 """
 
-QUERY = "SELECT 1"
-
 WAREHOUSE_ID = "749a06d455c0aa5b"
 CATALOG = f"us_mle_{os.environ['USER']}_gold"
 
 
 def _check_warehouse_health(warehouse_id: str) -> None:
-    warehouse = databricks.sdk.WorkspaceClient().warehouses.get(warehouse_id)
-    if warehouse.state.value != "RUNNING":
-        raise RuntimeError(
-            f"Warehouse {warehouse.name!r} ({warehouse.id}) "
-            f"is {warehouse.state.value}, not RUNNING"
-        )
-    if warehouse.health and warehouse.health.status.value != "HEALTHY":
-        raise RuntimeError(
-            f"Warehouse {warehouse.name!r} ({warehouse.id}) "
-            f"health is {warehouse.health.status.value}, not HEALTHY"
-        )
-    print(f"Health check: warehouse {warehouse.name!r} is RUNNING and HEALTHY")
+    while True:
+        warehouse = databricks.sdk.WorkspaceClient().warehouses.get(warehouse_id)
+        if warehouse.state.value != "RUNNING":
+            print(
+                f"Warehouse {warehouse.name!r} ({warehouse.id}) "
+                f"is {warehouse.state.value}, not RUNNING — retrying in 20 s …"
+            )
+            time.sleep(20)
+            continue
+        if warehouse.health and warehouse.health.status.value != "HEALTHY":
+            print(
+                f"Warehouse {warehouse.name!r} ({warehouse.id}) "
+                f"health is {warehouse.health.status.value}, not HEALTHY"
+                f" — retrying in 20 s …"
+            )
+            time.sleep(20)
+            continue
+        print(f"Health check: warehouse {warehouse.name!r} is RUNNING and HEALTHY")
+        break
 
 
 def _check_cluster_health(cluster_id: str) -> None:
-    cluster = databricks.sdk.WorkspaceClient().clusters.get(cluster_id)
-    if cluster.state.value != "RUNNING":
-        raise RuntimeError(
-            f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
-            f"is {cluster.state.value}, not RUNNING"
-        )
-    if not cluster.driver:
-        raise RuntimeError(
-            f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
-            f"is RUNNING but has no driver node"
-        )
-    print(f"Health check: cluster {cluster.cluster_name!r} is RUNNING, driver present")
+    while True:
+        cluster = databricks.sdk.WorkspaceClient().clusters.get(cluster_id)
+        if cluster.state.value != "RUNNING":
+            print(
+                f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
+                f"is {cluster.state.value}, not RUNNING — retrying in 20 s …"
+            )
+            time.sleep(20)
+            continue
+        if not cluster.driver:
+            print(
+                f"Cluster {cluster.cluster_name!r} ({cluster.cluster_id}) "
+                f"is RUNNING but has no driver node — retrying in 20 s …"
+            )
+            time.sleep(20)
+            continue
+        print(f"Health check: cluster {cluster.cluster_name!r} is RUNNING, driver present")
+        break
 
 
 def _check_sql_resource_health(http_path: str) -> None:
