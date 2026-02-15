@@ -1,0 +1,12 @@
+[project]
+name = "dbx-benchmarking"
+version = "0.1.0"
+description = "Databricks query benchmarking across compute targets, connectors, and materialization strategies"
+requires-python = ">=3.11"
+dependencies = [
+    "databricks-connect",
+    "databricks-sdk",
+    "databricks-sql-connector",
+    "pyarrow",
+    "python-dotenv",
+]
