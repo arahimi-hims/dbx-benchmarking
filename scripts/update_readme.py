@@ -1,7 +1,9 @@
 """Read times from results/*.txt and update the tables in README.md."""
 
+import argparse
 import os
 import re
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -182,6 +184,41 @@ def insert_resources() -> None:
     print(f"Rebuilt instance-details table ({len(table_lines)} lines)")
 
 
-if __name__ == "__main__":
+def run_benchmarks(scripts: list[Path]) -> None:
+    """Run the given benchmark scripts sequentially using ``uv run``."""
+    print(f"Running {len(scripts)} benchmark(s) …")
+    for script in scripts:
+        print(f"\n{'─' * 60}")
+        print(f"  Running {script.name} …")
+        print(f"{'─' * 60}")
+        result = subprocess.run(
+            ["uv", "run", str(script)],
+            cwd=ROOT,
+        )
+        if result.returncode != 0:
+            print(f"  ⚠ {script.name} exited with code {result.returncode}")
+    print(f"\n{'─' * 60}")
+    print("All benchmarks finished.")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Update benchmark results in README.md.",
+    )
+    parser.add_argument(
+        "scripts",
+        nargs="*",
+        type=Path,
+        help="Benchmark scripts to run before updating (e.g. benchmarks/*.py).",
+    )
+    args = parser.parse_args()
+
+    if args.scripts:
+        run_benchmarks(sorted(args.scripts))
+
     update_readme()
     insert_resources()
+
+
+if __name__ == "__main__":
+    main()

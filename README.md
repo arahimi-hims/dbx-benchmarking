@@ -23,8 +23,8 @@ result back to GCP for exploratory work.
 All scripts run the same query but vary across three dimensions: compute
 target, connector, and where results are materialized.
 
-| Script                                                                   | Running Time | Compute   | Connector                  | Materialization                                                     |
-| ------------------------------------------------------------------------ | ------------ | --------- | -------------------------- | ------------------------------------------------------------------- |
+| Script                                                                  | Running Time | Compute   | Connector                  | Materialization                                                     |
+| ----------------------------------------------------------------------- | ------------ | --------- | -------------------------- | ------------------------------------------------------------------- |
 | [cluster_dbx_parquet.py](benchmarks/cluster_dbx_parquet.py)             | 726.2s       | Cluster   | Databricks Connect (Spark) | `/Workspace/Users/{USER}@forhims.com/swolness_pamphlet/assignments` |
 | [cluster_dbx_unity_catalog.py](benchmarks/cluster_dbx_unity_catalog.py) | 431.4s       | Cluster   | Databricks Connect (Spark) | `{CATALOG}.default.swolness_cluster_dbx_uc`                         |
 | [warehouse_sql_download.py](benchmarks/warehouse_sql_download.py)       | 501.6s       | Warehouse | SQL Connector              | download to my laptop                                               |
@@ -60,3 +60,32 @@ using seems over-powered compared to the Warehouse node.
 | Photon             | True                  | PHOTON                   |
 | Spot policy        | COST_OPTIMIZED        | SPOT_WITH_FALLBACK       |
 | Data security mode | N/A                   | SINGLE_USER              |
+
+# Appendix: Re-running benchmarks
+
+You can run each benchmark by hand by running
+
+```bash
+uv run benchmarks/<benchmark-name>.py
+```
+
+To update the README from existing result, you can then run
+
+```bash
+uv run scripts/update_readme.py
+```
+
+Alternatively, you can re-run all, or a subset of, benchmarks and update the
+README in one go:
+
+```bash
+# re-run all benchmarks
+uv run scripts/update_readme.py benchmarks/*.py
+
+# re-run specific benchmarks
+uv run scripts/update_readme.py benchmarks/warehouse_*py
+```
+
+This will execute the given scripts sequentially via `uv run`, wait for each
+to finish (writing its timing to `results/`), then refresh the README tables
+with the new numbers.

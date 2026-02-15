@@ -15,7 +15,7 @@ import dotenv
 # Modify the environment variables to include databricks credentials.
 dotenv.load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s] %(message)s")
 
 QUERY = """\
 SELECT
