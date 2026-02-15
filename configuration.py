@@ -12,7 +12,9 @@ import databricks.sql
 import databricks.sql.client
 import dotenv
 
+# Modify the environment variables to include databricks credentials.
 dotenv.load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
 QUERY = """\
@@ -120,8 +122,10 @@ def _check_sql_resource_health(http_path: str) -> None:
 
 
 def result_path(script: str) -> Path:
-    """Return the ``.result.txt`` path for a benchmark script."""
-    return Path(script).resolve().with_suffix(".result.txt")
+    """Return the result path for a benchmark script inside ``results/``."""
+    results_dir = Path(__file__).resolve().parent / "results"
+    results_dir.mkdir(exist_ok=True)
+    return results_dir / Path(script).with_suffix(".txt").name
 
 
 @contextlib.contextmanager
