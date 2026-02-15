@@ -10,8 +10,7 @@ The main findings are that:
 
 The performance differences are on the order of minutes, so substantial. In
 fact, using Databricks Connect is slower than materializing the results **by
-downloading them my laptop** over the public internet, over a mesh wifi
-connection.
+downloading them my laptop** over the public internet, when it's hotspotted off an LTE phone connection.
 
 I'm keen to understand why Databricks Connect and the Clusters are slow slow,
 even though I'm executing the same SQL query in all cases. The impact of this
