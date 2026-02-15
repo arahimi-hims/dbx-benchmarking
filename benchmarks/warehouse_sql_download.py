@@ -6,7 +6,7 @@ import pyarrow.parquet as pq
 
 import configuration
 
-LOCAL_DATA_DIR = Path(__file__).resolve().parent / "data"
+LOCAL_DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 LOCAL_DATA_DIR.mkdir(exist_ok=True)
 
 connection = configuration.get_sql_connection(
