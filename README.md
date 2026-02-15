@@ -25,12 +25,12 @@ target, connector, and where results are materialized.
 
 | Script                                                                  | Running Time | Compute   | Connector                  | Materialization                                                     |
 | ----------------------------------------------------------------------- | ------------ | --------- | -------------------------- | ------------------------------------------------------------------- |
-| [cluster_dbx_parquet.py](benchmarks/cluster_dbx_parquet.py)             | 726.2s       | Cluster   | Databricks Connect (Spark) | `/Workspace/Users/{USER}@forhims.com/swolness_pamphlet/assignments` |
-| [cluster_dbx_unity_catalog.py](benchmarks/cluster_dbx_unity_catalog.py) | 431.4s       | Cluster   | Databricks Connect (Spark) | `{CATALOG}.default.swolness_cluster_dbx_uc`                         |
-| [warehouse_sql_download.py](benchmarks/warehouse_sql_download.py)       | 501.6s       | Warehouse | SQL Connector              | download to my laptop                                               |
-| [cluster_sql_new_table.py](benchmarks/cluster_sql_new_table.py)         | 357.8s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_new`                        |
-| [cluster_sql_delta_table.py](benchmarks/cluster_sql_delta_table.py)     | 323.8s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_delta`                      |
-| [warehouse_sql_materialize.py](benchmarks/warehouse_sql_materialize.py) | 306.9s       | Warehouse | SQL Connector              | `{CATALOG}.default.swolness_warehouse_sql`                          |
+| [cluster_dbx_parquet.py](benchmarks/cluster_dbx_parquet.py)             | 612.2s       | Cluster   | Databricks Connect (Spark) | `/Workspace/Users/{USER}@forhims.com/swolness_pamphlet/assignments` |
+| [cluster_dbx_unity_catalog.py](benchmarks/cluster_dbx_unity_catalog.py) | 397.4s       | Cluster   | Databricks Connect (Spark) | `{CATALOG}.default.swolness_cluster_dbx_uc`                         |
+| [warehouse_sql_download.py](benchmarks/warehouse_sql_download.py)       | 548.8s       | Warehouse | SQL Connector              | download to my laptop                                               |
+| [cluster_sql_new_table.py](benchmarks/cluster_sql_new_table.py)         | 380.5s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_new`                        |
+| [cluster_sql_delta_table.py](benchmarks/cluster_sql_delta_table.py)     | 409.4s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_delta`                      |
+| [warehouse_sql_materialize.py](benchmarks/warehouse_sql_materialize.py) | 319.0s       | Warehouse | SQL Connector              | `{CATALOG}.default.swolness_warehouse_sql`                          |
 
 The fastest way to materialize a result is by saving it as a table using a
 warehouse worker. Addiing a Cluster worker in the flow inclurs a 2 minute

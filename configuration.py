@@ -16,6 +16,7 @@ import dotenv
 dotenv.load_dotenv(Path(__file__).resolve().parent / ".env", override=True)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(module)s] %(message)s")
+logging.getLogger("databricks").setLevel(logging.WARNING)
 
 QUERY = """\
 SELECT
