@@ -1,6 +1,6 @@
 """Cluster + SQL Connector: Custom benchmark using credentials from .env file.
 
-Cluster Configuration (Option 2: Scale Up - Bigger Workers):
+Cluster Configuration:
 - Workers: 4 × m6i.4xlarge (16 cores, 64GB RAM each)
 - Driver: m6i.2xlarge (8 cores, 32GB RAM)
 - Total: 64 executor cores + 8 driver cores
@@ -45,6 +45,9 @@ WHERE
 """
 
 def main():
+    print(f"Starting benchmark (including connection setup)...")
+    start_time = time.perf_counter()  # Timer starts immediately
+    
     # Get workspace ID for cluster connection
     ws = databricks.sdk.WorkspaceClient(
         host=f"https://{DATABRICKS_HOST}",
@@ -68,8 +71,6 @@ def main():
     )
     
     try:
-        print("\nStarting benchmark...")
-        start_time = time.perf_counter()
         
         with connection.cursor() as cursor:
             # Create table from query results
@@ -82,12 +83,13 @@ def main():
             cursor.execute(create_table_sql)
         
         elapsed = time.perf_counter() - start_time
-        print(f"\n✅ SUCCESS - Created table in {elapsed:.1f}s")
+        print(f"\n✅ SUCCESS - Total time (connection + query): {elapsed:.1f}s")
         print(f"   Table location: {CATALOG}.default.{TABLE_NAME}")
         print(f"\n📊 Compare to baseline:")
         print(f"   bench_cluster_sql_new_table.py:   472.4s (original cluster)")
         print(f"   bench_cluster_sql_delta_table.py: 441.3s (original cluster)")
         print(f"   bench_cluster_sql_custom.py:      {elapsed:.1f}s (your optimized cluster)")
+        print(f"\n   Note: Timing includes connection setup + query execution")
         
     except Exception as e:
         elapsed = time.perf_counter() - start_time if 'start_time' in locals() else 0
