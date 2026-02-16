@@ -25,11 +25,11 @@ target, connector, and where results are materialized.
 
 | Script                                                                  | Running Time | Compute   | Connector                  | Materialization                                                     |
 | ----------------------------------------------------------------------- | ------------ | --------- | -------------------------- | ------------------------------------------------------------------- |
-| [cluster_dbx_parquet.py](benchmarks/cluster_dbx_parquet.py)             | 612.2s       | Cluster   | Databricks Connect (Spark) | `/Workspace/Users/{USER}@forhims.com/swolness_pamphlet/assignments` |
-| [cluster_dbx_unity_catalog.py](benchmarks/cluster_dbx_unity_catalog.py) | 397.4s       | Cluster   | Databricks Connect (Spark) | `{CATALOG}.default.swolness_cluster_dbx_uc`                         |
+| [cluster_dbx_parquet.py](benchmarks/cluster_dbx_parquet.py)             | 609.4s       | Cluster   | Databricks Connect (Spark) | `/Workspace/Users/{USER}@forhims.com/swolness_pamphlet/assignments` |
+| [cluster_dbx_unity_catalog.py](benchmarks/cluster_dbx_unity_catalog.py) | 435.9s       | Cluster   | Databricks Connect (Spark) | `{CATALOG}.default.swolness_cluster_dbx_uc`                         |
 | [warehouse_sql_download.py](benchmarks/warehouse_sql_download.py)       | 548.8s       | Warehouse | SQL Connector              | download to my laptop                                               |
-| [cluster_sql_new_table.py](benchmarks/cluster_sql_new_table.py)         | 380.5s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_new`                        |
-| [cluster_sql_delta_table.py](benchmarks/cluster_sql_delta_table.py)     | 409.4s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_delta`                      |
+| [cluster_sql_new_table.py](benchmarks/cluster_sql_new_table.py)         | 474.8s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_new`                        |
+| [cluster_sql_delta_table.py](benchmarks/cluster_sql_delta_table.py)     | 503.2s       | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_delta`                      |
 | [warehouse_sql_materialize.py](benchmarks/warehouse_sql_materialize.py) | 319.0s       | Warehouse | SQL Connector              | `{CATALOG}.default.swolness_warehouse_sql`                          |
 
 The fastest way to materialize a result is by saving it as a table using a
@@ -50,13 +50,13 @@ using seems over-powered compared to the Warehouse node.
 | Name               | mle generic warehouse | arahimi Personal Compute |
 | Size / Spark ver   | Small                 | 18.0.x-scala2.13         |
 | Serverless         | True                  | N/A                      |
-| Workers            | 1–2 clusters          | 1–5                      |
+| Workers            | 1–2 clusters          | 4–4                      |
 | Driver instance    | (managed)             | m5d.xlarge               |
 | Driver cores       | (managed)             | 4.0                      |
 | Driver memory (MB) | (managed)             | 16384                    |
-| Worker instance    | (managed)             | i3.16xlarge              |
-| Worker cores       | (managed)             | 64.0                     |
-| Worker memory (MB) | (managed)             | 499712                   |
+| Worker instance    | (managed)             | m6i.4xlarge              |
+| Worker cores       | (managed)             | 16.0                     |
+| Worker memory (MB) | (managed)             | 65536                    |
 | Photon             | True                  | PHOTON                   |
 | Spot policy        | COST_OPTIMIZED        | SPOT_WITH_FALLBACK       |
 | Data security mode | N/A                   | SINGLE_USER              |
