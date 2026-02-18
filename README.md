@@ -25,11 +25,11 @@ target, connector, and where results are materialized.
 
 | Script                                                                  | Running Time | Compute   | Connector                  | Materialization                                                     |
 | ----------------------------------------------------------------------- | ------------ | --------- | -------------------------- | ------------------------------------------------------------------- |
-| [cluster_dbx_parquet.py](benchmarks/cluster_dbx_parquet.py)             | 240.3s       | Cluster   | Databricks Connect (Spark) | `/Workspace/Users/{USER}@forhims.com/swolness_pamphlet/assignments` |
-| [cluster_dbx_unity_catalog.py](benchmarks/cluster_dbx_unity_catalog.py) | 29.4s        | Cluster   | Databricks Connect (Spark) | `{CATALOG}.default.swolness_cluster_dbx_uc`                         |
+| [cluster_dbx_parquet.py](benchmarks/cluster_dbx_parquet.py)             | 534.8s       | Cluster   | Databricks Connect (Spark) | `/Workspace/Users/{USER}@forhims.com/swolness_pamphlet/assignments` |
+| [cluster_dbx_unity_catalog.py](benchmarks/cluster_dbx_unity_catalog.py) | 3.5s         | Cluster   | Databricks Connect (Spark) | `{CATALOG}.default.swolness_cluster_dbx_uc`                         |
 | [warehouse_sql_download.py](benchmarks/warehouse_sql_download.py)       | 688.7s       | Warehouse | SQL Connector              | download to my laptop                                               |
-| [cluster_sql_new_table.py](benchmarks/cluster_sql_new_table.py)         | 22.5s        | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_new`                        |
-| [cluster_sql_delta_table.py](benchmarks/cluster_sql_delta_table.py)     | 17.8s        | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_delta`                      |
+| [cluster_sql_new_table.py](benchmarks/cluster_sql_new_table.py)         | 393.3s        | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_new`                        |
+| [cluster_sql_delta_table.py](benchmarks/cluster_sql_delta_table.py)     | 444.7s        | Cluster   | SQL Connector              | `{CATALOG}.default.swolness_cluster_sql_delta`                      |
 | [warehouse_sql_materialize.py](benchmarks/warehouse_sql_materialize.py) | 296.5s       | Warehouse | SQL Connector              | `{CATALOG}.default.swolness_warehouse_sql`                          |
 
 The fastest way to materialize a result is by saving it as a table using a
@@ -45,21 +45,21 @@ which I presume eventually ends up saving the file to a Delta file.
 I don't think it has to do with the size of the instance. The Cluster node I'm
 using seems over-powered compared to the Warehouse node.
 
-|                    | Warehouse             | Cluster                |
-| ------------------ | --------------------- | ---------------------- |
-| Name               | mle generic warehouse | Ollie Personal compute |
-| Size / Spark ver   | Small                 | 18.0.x-scala2.13       |
-| Serverless         | True                  | N/A                    |
-| Workers            | 1–2 clusters          | 4–4                    |
-| Driver instance    | (managed)             | m6id.2xlarge           |
-| Driver cores       | (managed)             | 8.0                    |
-| Driver memory (MB) | (managed)             | 32768                  |
-| Worker instance    | (managed)             | m6i.4xlarge            |
-| Worker cores       | (managed)             | 16.0                   |
-| Worker memory (MB) | (managed)             | 65536                  |
-| Photon             | True                  | PHOTON                 |
-| Spot policy        | COST_OPTIMIZED        | SPOT_WITH_FALLBACK     |
-| Data security mode | N/A                   | USER_ISOLATION         |
+|                    | Warehouse             | Cluster                  |
+| ------------------ | --------------------- | ------------------------ |
+| Name               | mle generic warehouse | arahimi Personal Compute |
+| Size / Spark ver   | Small                 | 18.0.x-scala2.13         |
+| Serverless         | True                  | N/A                      |
+| Workers            | 1–2 clusters          | 4–4                      |
+| Driver instance    | (managed)             | m6id.2xlarge             |
+| Driver cores       | (managed)             | 8.0                      |
+| Driver memory (MB) | (managed)             | 32768                    |
+| Worker instance    | (managed)             | m6id.4xlarge             |
+| Worker cores       | (managed)             | 16.0                     |
+| Worker memory (MB) | (managed)             | 65536                    |
+| Photon             | True                  | PHOTON                   |
+| Spot policy        | COST_OPTIMIZED        | SPOT_WITH_FALLBACK       |
+| Data security mode | N/A                   | SINGLE_USER              |
 
 # Appendix: Re-running benchmarks
 
