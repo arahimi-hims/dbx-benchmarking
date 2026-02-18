@@ -88,8 +88,7 @@ def main():
         print(f"\n📊 Compare to baseline:")
         print(f"   bench_cluster_sql_new_table.py:   472.4s (original cluster)")
         print(f"   bench_cluster_sql_delta_table.py: 441.3s (original cluster)")
-        print(f"   bench_cluster_sql_custom.py:      {elapsed:.1f}s (your optimized cluster)")
-        print(f"\n   Note: Timing includes connection setup + query execution")
+        print(f"   bench_cluster_sql_custom.py:      {elapsed:.1f}s (custom cluster)")
         
     except Exception as e:
         elapsed = time.perf_counter() - start_time if 'start_time' in locals() else 0
